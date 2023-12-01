@@ -15,8 +15,8 @@ import {
    TdLeftTable,
    TdTable,
    TrTable,
-   TrashInput,
 } from './styles';
+
 import ContentHeader from '../../../components/ContentHeader';
 import SelectInput from '../../../components/SelectInput';
 import SelectInputGroup from '../../../components/SelectInputGroup';
@@ -34,6 +34,7 @@ import axios, {AxiosError} from 'axios';
 import TaskCard from '../../../components/TaskCard';
 import TaskBox from '../../../components/TaskBox';
 import TaskTrash from '../../../components/TaskTrash';
+import TaskScale from '../../../components/TaskScale';
 
 /* interface IDistribProps {
   id: string;
@@ -124,7 +125,7 @@ const Dashboard: React.FC = () => {
             }
          }
       });
-   }, []);
+   }, [distribs]);
 
    const handleChangeData = (mes: string, ano: string) => {
       //console.log(`handleChangeData: ${mes}/${ano}`);
@@ -201,7 +202,10 @@ const Dashboard: React.FC = () => {
    const handleDistribs = (distrib: IDistribProps) => {
       setDistribs([...distribs, distrib]);
    };
-   const handleDistribsDel = () => {};
+
+   const handleDistribsDel = (distribID: string) => {
+      setDistribs(distribs.filter(item => item.id !== distribID));
+   };
 
    return (
       <Container>
@@ -326,9 +330,18 @@ const Dashboard: React.FC = () => {
                                           profiss_name={distrib.profiss_name}
                                           color={distrib.color}
                                           obs={distrib.obs ? distrib.obs : ''}
-                                          handleDistribs={
-                                             handleDistribs
-                                          }></TaskBox>
+                                          handleDistribs={handleDistribs}
+                                          handleDistribsDel={handleDistribsDel}>
+                                          <TaskScale
+                                             profiss_Id={distrib.profiss_id}
+                                             profiss_name={distrib.profiss_name}
+                                             color={distrib.color}
+                                             obs={
+                                                distrib.obs ? distrib.obs : ''
+                                             }
+                                             distrib_Id={distrib.id}
+                                          />
+                                       </TaskBox>
                                     </TdTable>
                                  );
                               } else {
@@ -352,6 +365,9 @@ const Dashboard: React.FC = () => {
                                              scale_Id={horario.id}
                                              scale_name={horario.name}
                                              handleDistribs={handleDistribs}
+                                             handleDistribsDel={
+                                                handleDistribsDel
+                                             }
                                           />
                                        </TdTable>
                                     );
