@@ -30,6 +30,7 @@ import {
    IProfissGroupProps,
 } from '../../../resources/interfaces';
 import axios, {AxiosError} from 'axios';
+import {IoTrashOutline} from 'react-icons/io5';
 
 import TaskCard from '../../../components/TaskCard';
 import TaskBox from '../../../components/TaskBox';
@@ -97,9 +98,7 @@ const Dashboard: React.FC = () => {
    }
    //console.log(`dateArray: ${dateArray.current}`);
    const linhas = dateArray.current.length / 7;
-   //console.log(`linhas: ${linhas}`);
    linhasArray.current = Array.from({length: linhas}, (_, index) => index);
-   //console.log('Array1:', linhasArray.current);
 
    const colunasArray = [0, 1, 2, 3, 4, 5, 6]; //- Referente Horarios + dias da semana
 
@@ -204,7 +203,13 @@ const Dashboard: React.FC = () => {
    };
 
    const handleDistribsDel = (distribID: string) => {
-      setDistribs(distribs.filter(item => item.id !== distribID));
+      const noItemDistrib = distribs.filter(item => item.id !== distribID);
+      setDistribs(noItemDistrib);
+   };
+
+   const handleDistribsChg = (distrib: IDistribProps, distribID: string) => {
+      const noItemDistrib = distribs.filter(item => item.id !== distribID);
+      setDistribs([...noItemDistrib, distrib]);
    };
 
    return (
@@ -257,7 +262,10 @@ const Dashboard: React.FC = () => {
                }}
             />
             {/* <div style={{height:"30px", width:"30px", backgroundColor:"red"}}> */}
-            <TaskTrash handleDistribsDel={handleDistribsDel} />
+            <div></div>
+            <TaskTrash handleDistribsDel={handleDistribsDel}>
+               <IoTrashOutline />
+            </TaskTrash>
             {/* </div> */}
             {/* <TrashInput isSelected ><TaskTrash handleDistribsDel={handleDistribsDel} /></TrashInput> */}
          </ContentHeader>
@@ -331,7 +339,8 @@ const Dashboard: React.FC = () => {
                                           color={distrib.color}
                                           obs={distrib.obs ? distrib.obs : ''}
                                           handleDistribs={handleDistribs}
-                                          handleDistribsDel={handleDistribsDel}>
+                                          handleDistribsDel={handleDistribsDel}
+                                          handleDistribsChg={handleDistribsChg}>
                                           <TaskScale
                                              profiss_Id={distrib.profiss_id}
                                              profiss_name={distrib.profiss_name}
@@ -367,6 +376,9 @@ const Dashboard: React.FC = () => {
                                              handleDistribs={handleDistribs}
                                              handleDistribsDel={
                                                 handleDistribsDel
+                                             }
+                                             handleDistribsChg={
+                                                handleDistribsChg
                                              }
                                           />
                                        </TdTable>

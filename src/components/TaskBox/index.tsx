@@ -17,6 +17,7 @@ export interface ITaskBoxProps {
    scale_name: string;
    handleDistribs: (distr: IDistribProps) => void;
    handleDistribsDel: (distrib_id: string) => void;
+   handleDistribsChg: (distr: IDistribProps, distrib_id: string) => void;
 
    children?: React.ReactNode;
    profiss_Id?: string;
@@ -46,7 +47,8 @@ const TaskBox: React.FC<ITaskBoxProps> = ({
    color,
    //obs,
    handleDistribs,
-   handleDistribsDel,
+   //handleDistribsDel,
+   handleDistribsChg,
    children,
 }) => {
    const theme = useTheme();
@@ -56,13 +58,11 @@ const TaskBox: React.FC<ITaskBoxProps> = ({
          isOver: !!monitor.isOver(),
       }),
       drop: async (item: IItemProps, monitor: DropTargetMonitor) => {
-         console.log(
-            `item: ${item.profiss_Id} - ${item.profiss_name} - ${item.distrib_Id} - ${item.color}`,
-         );
+         // console.log(
+         //    `item: ${item.profiss_Id} - ${item.profiss_name} - ${item.distrib_Id} - ${item.color}`,
+         // );
          if (item.distrib_Id === undefined) {
             try {
-               console.log(`distrib_Id: ${item.distrib_Id} - undefined`);
-
                const response = await api.post('api/distrib', {
                   data: `${ano}-${mes}-${dia}T03:00:00.000Z`,
                   obs: '',
@@ -75,6 +75,7 @@ const TaskBox: React.FC<ITaskBoxProps> = ({
                   data: new Date(`${ano}-${mes}-${dia}T03:00:00.000Z`),
                   dia: dia,
                   mes: mes,
+                  ano: ano,
                   obs: '',
                   color: item.color,
                   profiss_id: item.profiss_Id,
@@ -86,15 +87,9 @@ const TaskBox: React.FC<ITaskBoxProps> = ({
                alert(`Erro ao criar distribuição: ${error}`);
             }
          } else {
-            console.log(`distrib_Id: ${item.distrib_Id} - DEFINED`);
+            //console.log(`distrib_Id: ${item.distrib_Id} - DEFINED`);
             try {
                await api.delete(`api/distrib/${item.distrib_Id}`);
-               // para garantir todas as nuances de tipagem
-               // if (item.distrib_Id) {
-               // console.log('Dentro do if dos distribsDel');
-
-               handleDistribsDel(item.distrib_Id);
-               // }
                const response = await api.post('api/distrib', {
                   data: `${ano}-${mes}-${dia}T03:00:00.000Z`,
                   obs: '',
@@ -102,18 +97,22 @@ const TaskBox: React.FC<ITaskBoxProps> = ({
                   group_Id: group_Id,
                   scale_Id: scale_Id,
                });
-               handleDistribs({
-                  id: response.data.distrib_Id,
-                  data: new Date(`${ano}-${mes}-${dia}T03:00:00.000Z`),
-                  dia: dia,
-                  mes: mes,
-                  obs: '',
-                  color: item.color,
-                  profiss_id: item.profiss_Id,
-                  profiss_name: item.profiss_name,
-                  scale_id: scale_Id,
-                  scale_name: scale_name,
-               });
+               handleDistribsChg(
+                  {
+                     id: response.data.distrib_Id,
+                     data: new Date(`${ano}-${mes}-${dia}T03:00:00.000Z`),
+                     dia: dia,
+                     mes: mes,
+                     ano: ano,
+                     obs: '',
+                     color: item.color,
+                     profiss_id: item.profiss_Id,
+                     profiss_name: item.profiss_name,
+                     scale_id: scale_Id,
+                     scale_name: scale_name,
+                  },
+                  item.distrib_Id,
+               );
             } catch (error) {
                alert(`Erro ao criar distribuição: ${error}`);
             }
