@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useAuth } from "../../../hooks/auth";
+import React, {useState} from 'react';
+import {useAuth} from '../../../hooks/auth';
 import {
    Container,
    Header,
@@ -12,39 +12,36 @@ import {
    UserName,
    Welcome,
    ToggleContainer,
-} from "./styles";
-import logoImg from "../../../assets/escala.svg";
+} from './styles';
+import logoImg from '../../../assets/escala.svg';
 import {
    MdDashboard,
    //MdContactPage,
    MdExitToApp,
    MdPeopleAlt,
    //MdList,
-} from "react-icons/md";
-import { useNavigate } from "react-router-dom";
+} from 'react-icons/md';
+import {useNavigate} from 'react-router-dom';
 
-import Toogle from "../Toogle";
-import { useTheme } from "../../../hooks/theme";
-
+import Toogle from '../Toogle';
+import {useTheme} from '../../../hooks/theme';
 
 const Aside: React.FC = () => {
-   const { signOut, logged } = useAuth();
+   const {signOut, logged} = useAuth();
    const navigate = useNavigate();
-   const { level } = logged;
+   const {level} = logged;
 
-   const { theme, toogleTheme } = useTheme();
+   const {theme, toogleTheme} = useTheme();
    //const { logged } = useAuth();
 
    const [darkTheme, setDarkTheme] = useState<boolean>(
-      () => theme.title === "dark"
+      () => theme.title === 'dark',
    );
 
    const handleChangeTheme = () => {
       setDarkTheme(!darkTheme);
       toogleTheme();
    };
-
-
 
    return (
       <Container>
@@ -59,46 +56,87 @@ const Aside: React.FC = () => {
          </Profile>
 
          <MenuContainer>
-
             {level === 0 && (
                <>
-
-                  <MenuItemLink to="/"><MdDashboard />DashBoard</MenuItemLink>
-                  <MenuItemLink to="/CadGroup"><MdPeopleAlt />Cad Grupos</MenuItemLink>
-                  <MenuItemLink to="/CadProfiss"><MdPeopleAlt />Cad Profis</MenuItemLink>
-                  <MenuItemLink to="/CadScale"><MdPeopleAlt />Cad Horários</MenuItemLink>
-                  <MenuItemLink to="/CadProfGroup"><MdPeopleAlt />Prof./Grupo</MenuItemLink>
+                  <MenuItemLink to="/">
+                     <MdDashboard />
+                     DashBoard
+                  </MenuItemLink>
+                  <MenuItemLink to="/CadGroup">
+                     <MdPeopleAlt />
+                     Cad Escalas
+                  </MenuItemLink>
+                  <MenuItemLink to="/CadProfiss">
+                     <MdPeopleAlt />
+                     Cad Profis
+                  </MenuItemLink>
+                  <MenuItemLink to="/CadScale">
+                     <MdPeopleAlt />
+                     Cad Horários
+                  </MenuItemLink>
+                  <MenuItemLink to="/CadProfGroup">
+                     <MdPeopleAlt />
+                     Prof./Escala
+                  </MenuItemLink>
                </>
             )}
 
             {level === 1 && (
                <>
-                  <MenuItemLink to="/"><MdDashboard />Dashboard</MenuItemLink>
-                  <MenuItemLink to="/CadGroup"><MdPeopleAlt />Cad Grupos</MenuItemLink>
-                  <MenuItemLink to="/CadProfiss"><MdPeopleAlt />Cad Profis</MenuItemLink>
-                  <MenuItemLink to="/CadScale"><MdPeopleAlt />Cad Horários</MenuItemLink>
-                  <MenuItemLink to="/CadProfGroup"><MdPeopleAlt />Prof./Grupo</MenuItemLink>
+                  <MenuItemLink to="/">
+                     <MdDashboard />
+                     Dashboard
+                  </MenuItemLink>
+                  <MenuItemLink to="/CadGroup">
+                     <MdPeopleAlt />
+                     Cad Grupos
+                  </MenuItemLink>
+                  <MenuItemLink to="/CadProfiss">
+                     <MdPeopleAlt />
+                     Cad Profis
+                  </MenuItemLink>
+                  <MenuItemLink to="/CadScale">
+                     <MdPeopleAlt />
+                     Cad Horários
+                  </MenuItemLink>
+                  <MenuItemLink to="/CadProfGroup">
+                     <MdPeopleAlt />
+                     Prof./Grupo
+                  </MenuItemLink>
                </>
             )}
 
             {level === 2 && (
                <>
-                  <MenuItemLink to="/"><MdDashboard />Dashboard</MenuItemLink>
-                  <MenuItemLink to="/CadGroup"><MdPeopleAlt />Cad Grupos</MenuItemLink>
-                  <MenuItemLink to="/CadProfiss"><MdPeopleAlt />Cad Profis</MenuItemLink>
-                  <MenuItemLink to="/CadScale"><MdPeopleAlt />CadHorários</MenuItemLink>
-                  <MenuItemLink to="/CadProfGroup"><MdPeopleAlt />Prof./Grupo</MenuItemLink>
+                  <MenuItemLink to="/">
+                     <MdDashboard />
+                     Dashboard
+                  </MenuItemLink>
+                  <MenuItemLink to="/CadGroup">
+                     <MdPeopleAlt />
+                     Cad Grupos
+                  </MenuItemLink>
+                  <MenuItemLink to="/CadProfiss">
+                     <MdPeopleAlt />
+                     Cad Profis
+                  </MenuItemLink>
+                  <MenuItemLink to="/CadScale">
+                     <MdPeopleAlt />
+                     CadHorários
+                  </MenuItemLink>
+                  <MenuItemLink to="/CadProfGroup">
+                     <MdPeopleAlt />
+                     Prof./Grupo
+                  </MenuItemLink>
                </>
             )}
-
          </MenuContainer>
          <MenuItemButton
-            onClick={(e) => {
+            onClick={e => {
                e.preventDefault();
                signOut();
-               navigate("/");
-            }}
-         >
+               navigate('/');
+            }}>
             <MdExitToApp />
             Sair
          </MenuItemButton>
@@ -110,7 +148,6 @@ const Aside: React.FC = () => {
                handleChange={handleChangeTheme}
             />
          </ToggleContainer>
-
       </Container>
    );
 };

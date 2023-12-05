@@ -36,6 +36,7 @@ import TaskCard from '../../../components/TaskCard';
 import TaskBox from '../../../components/TaskBox';
 import TaskTrash from '../../../components/TaskTrash';
 import TaskScale from '../../../components/TaskScale';
+import {set} from 'react-hook-form';
 
 /* interface IDistribProps {
   id: string;
@@ -63,9 +64,12 @@ const Dashboard: React.FC = () => {
    const [distribs, setDistribs] = useState<IDistribProps[]>([]);
 
    const [profisss, setProfiss] = useState<IProfissGroupProps[]>([]);
-   const [profissSelected, setProfissSelected] = useState<IProfissGroupProps>();
+   const [profissSelected, setProfissSelected] = useState<IProfissGroupProps>({
+      profiss_Id: '',
+      profiss_name: '',
+      color: '',
+   });
 
-   //console.log(`mesSelected: ${(dayjs().month() + 1).toString().padStart(2, '0')}`);
    const [mesSelected, setMesSelected] = useState<string>(
       (dayjs().month() + 1).toString().padStart(2, '0'),
    );
@@ -78,14 +82,12 @@ const Dashboard: React.FC = () => {
          .subtract(dayjs().startOf('months').day(), 'days')
          .format('YYYY-MM-DD'),
    );
-   //console.log(`startDate: ${startDate.current}`);
    const endDate = useRef<string>(
       dayjs()
          .endOf('month')
          .add(6 - dayjs().endOf('months').day(), 'days')
          .format('YYYY-MM-DD'),
    );
-   //console.log(`endDate: ${endDate.current}`);
    const dateArray = useRef<string[]>([]);
    const linhasArray = useRef<number[]>([]);
 
@@ -96,7 +98,6 @@ const Dashboard: React.FC = () => {
       dateArray.current.push(currentDate.format('YYYY-MM-DD'));
       currentDate = currentDate.add(1, 'day');
    }
-   //console.log(`dateArray: ${dateArray.current}`);
    const linhas = dateArray.current.length / 7;
    linhasArray.current = Array.from({length: linhas}, (_, index) => index);
 
@@ -127,19 +128,19 @@ const Dashboard: React.FC = () => {
    }, [distribs]);
 
    const handleChangeData = (mes: string, ano: string) => {
-      //console.log(`handleChangeData: ${mes}/${ano}`);
-      const startday = dayjs(`${ano}/${(parseInt(mes) + 1).toString()}/01`);
+      //--- Carrega o primeiro dia do calendario
+      const startday = dayjs(`${ano}/${parseInt(mes).toString()}/01`);
       startDate.current = startday
          .startOf('month')
          .subtract(startday.startOf('month').day(), 'days')
          .format('YYYY-MM-DD');
-      const endday = dayjs(`${ano}/${(parseInt(mes) + 1).toString()}/01`).endOf(
-         'month',
-      );
-      endDate.current = endday
-         .add(6 - endday.day(), 'days')
+      //--- Carrega o ultimo dia do calendario
+      const endday = startday
+         .endOf('month')
+         .add(6 - dayjs().endOf('months').day(), 'days')
          .format('YYYY-MM-DD');
-      //---  Carregando o dateArray com as datas do mês
+      endDate.current = endday;
+      //--  Carregando o dateArray com as datas do calendario
       dateArray.current = [];
       let currentDate = dayjs(startDate.current);
       while (currentDate <= dayjs(endDate.current)) {
@@ -147,10 +148,12 @@ const Dashboard: React.FC = () => {
          currentDate = currentDate.add(1, 'day');
       }
       const linhas = dateArray.current.length / 7;
-      //console.log(`linhas: ${linhas}`);
-      //console.log(`dateArray: ${dateArray.current}`);
-
       linhasArray.current = Array.from({length: linhas}, (_, index) => index);
+      setDistribs([]);
+      setProfissSelected({profiss_Id: '', profiss_name: '', color: ''});
+      setProfiss([]);
+      setGroups([]);
+      setGroupSelected('0');
    };
 
    const handleChangeGroup = async (
@@ -169,8 +172,6 @@ const Dashboard: React.FC = () => {
       array3.sort((a, b) => a.name.localeCompare(b.name));
       horarios.current = array3;
       horariosLength.current = array3.length;
-      console.log('horários:', horarios.current);
-      console.log(`horariosLenght: ${horariosLength.current}`);
       try {
          //----------------------------------------------------------------------------
          const response4 = await api.post(`/api/distribs/${e.target.value}`, {
@@ -178,13 +179,11 @@ const Dashboard: React.FC = () => {
             dataFim: endDate.current + `T03:00:00.000Z`,
          });
          setDistribs(response4.data);
-         console.log('distribuições:', response4.data);
          //----------------------------------------------------------------------------
          const response5 = await api.get(
             `/api/profisss/group/${e.target.value}`,
          );
          setProfiss(response5.data);
-         console.log('profiss:', response5.data);
          setProfissSelected(response5.data[0]);
          //----------------------------------------------------------------------------
       } catch (error) {
@@ -195,6 +194,13 @@ const Dashboard: React.FC = () => {
                signOut();
             }
          }
+      }
+   };
+
+   const handleProfissSelected = (profiss_Id: string) => {
+      const profiss = profisss.find(item => item.profiss_Id === profiss_Id);
+      if (profiss) {
+         setProfissSelected(profiss);
       }
    };
 
@@ -212,6 +218,43 @@ const Dashboard: React.FC = () => {
       setDistribs([...noItemDistrib, distrib]);
    };
 
+   const handleDistribsUpdt = async (
+      //distrib: IDistribProps,
+      distribID_In: string,
+      distribID_Out: string,
+   ) => {
+      // Delete a distribuicao de entrada e atualiza a de saida
+      const distrib_In: IDistribProps | undefined = distribs.find(
+         item => item.id === distribID_In,
+      );
+      if (!distrib_In) {
+         return;
+      }
+      const distrib_Out: IDistribProps | undefined = distribs.find(
+         item => item.id === distribID_Out,
+      );
+      if (!distrib_Out) {
+         return;
+      }
+      distrib_Out.id = distrib_In.id;
+      distrib_Out.obs = distrib_In.obs;
+      distrib_Out.color = distrib_In.color;
+      distrib_Out.profiss_id = distrib_In.profiss_id;
+      distrib_Out.profiss_name = distrib_In.profiss_name;
+      // Filtra distrib para exclui a distribuição com distribID_In e distribID_Out
+      const distribF = distribs.filter(item => item.id !== distribID_In);
+      const distribG = distribF.filter(item => item.id !== distribID_Out);
+      // Atualiza a distribuição com distrib_Out modificado
+      setDistribs([...distribG, distrib_Out]);
+      // Delete distribuição de entrada
+      await api.delete(`api/distrib/${distribID_In}`);
+      // Update distribuição de saida
+      await api.patch(`api/distrib/${distribID_Out}`, {
+         obs: distrib_Out.obs,
+         profiss_id: distrib_Out.profiss_id,
+         // scale_id: distrib_Out.scale_id,
+      });
+   };
    return (
       <Container>
          <ContentHeader title="Escala" linecolor="#ff5100ff">
@@ -227,12 +270,7 @@ const Dashboard: React.FC = () => {
                options={profisss}
                onChange={e => {
                   e.preventDefault();
-                  setProfissSelected(
-                     profisss.find(
-                        item => item.profiss_name === e.target.value,
-                     ),
-                  );
-                  //console.log('onChange:', e.target.value);
+                  handleProfissSelected(e.target.value);
                }}
             />
             <SelectInput
@@ -338,8 +376,12 @@ const Dashboard: React.FC = () => {
                                           profiss_name={distrib.profiss_name}
                                           color={distrib.color}
                                           obs={distrib.obs ? distrib.obs : ''}
+                                          id={distrib.id}
                                           handleDistribs={handleDistribs}
                                           handleDistribsDel={handleDistribsDel}
+                                          handleDistribsUpdt={
+                                             handleDistribsUpdt
+                                          }
                                           handleDistribsChg={handleDistribsChg}>
                                           <TaskScale
                                              profiss_Id={distrib.profiss_id}
@@ -374,6 +416,9 @@ const Dashboard: React.FC = () => {
                                              scale_Id={horario.id}
                                              scale_name={horario.name}
                                              handleDistribs={handleDistribs}
+                                             handleDistribsUpdt={
+                                                handleDistribsUpdt
+                                             }
                                              handleDistribsDel={
                                                 handleDistribsDel
                                              }

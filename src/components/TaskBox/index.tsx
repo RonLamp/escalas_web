@@ -18,12 +18,14 @@ export interface ITaskBoxProps {
    handleDistribs: (distr: IDistribProps) => void;
    handleDistribsDel: (distrib_id: string) => void;
    handleDistribsChg: (distr: IDistribProps, distrib_id: string) => void;
+   handleDistribsUpdt: (distrib_id_in: string, distrib_id_out: string) => void;
 
    children?: React.ReactNode;
    profiss_Id?: string;
    profiss_name?: string;
    color?: string;
    obs?: string;
+   id?: string;
 }
 
 interface IItemProps {
@@ -43,11 +45,12 @@ const TaskBox: React.FC<ITaskBoxProps> = ({
    scale_Id,
    scale_name,
    profiss_Id,
-   //profiss_name,
+   profiss_name,
    color,
+   id,
    //obs,
    handleDistribs,
-   //handleDistribsDel,
+   handleDistribsUpdt,
    handleDistribsChg,
    children,
 }) => {
@@ -87,34 +90,86 @@ const TaskBox: React.FC<ITaskBoxProps> = ({
                alert(`Erro ao criar distribuição: ${error}`);
             }
          } else {
-            //console.log(`distrib_Id: ${item.distrib_Id} - DEFINED`);
-            try {
-               await api.delete(`api/distrib/${item.distrib_Id}`);
-               const response = await api.post('api/distrib', {
-                  data: `${ano}-${mes}-${dia}T03:00:00.000Z`,
-                  obs: '',
-                  profiss_Id: item.profiss_Id,
-                  group_Id: group_Id,
-                  scale_Id: scale_Id,
-               });
-               handleDistribsChg(
-                  {
-                     id: response.data.distrib_Id,
-                     data: new Date(`${ano}-${mes}-${dia}T03:00:00.000Z`),
-                     dia: dia,
-                     mes: mes,
-                     ano: ano,
-                     obs: '',
-                     color: item.color,
-                     profiss_id: item.profiss_Id,
-                     profiss_name: item.profiss_name,
-                     scale_id: scale_Id,
-                     scale_name: scale_name,
-                  },
-                  item.distrib_Id,
+            console.log(`profiss_ID (tá chegando): ${item.profiss_Id}`);
+            console.log(`profiss_Id (tá aki): ${profiss_Id}`);
+            if (profiss_Id) {
+               //----- alerta yes ou no  --------------------------------
+               const confirmacao = window.confirm(
+                  `Deseja trocar o profissional ${profiss_name} por ${item.profiss_name}?`,
                );
-            } catch (error) {
-               alert(`Erro ao criar distribuição: ${error}`);
+               if (confirmacao) {
+                  // Código a ser executado se o usuário clicar em "OK"
+                  // console.log('Usuário deseja trocar de profissional');
+                  // Adicione aqui a lógica para a troca de profissional, se necessário
+                  //-----------  CONSULTAR A DISTRIB QUE ESTÁ CHEGANDO DA BASE DE DADOS ---
+                  //-----------  OU CONSULTAR A DISTRIB QUE ESTÁ NO ESTADO ----------------
+                  try {
+                     // await api.delete(`api/distrib/${item.distrib_Id}`);
+                     // await api.delete(`api/distrib/${id}`);
+                     // const response = await api.post('api/distrib', {
+                     //    data: `${ano}-${mes}-${dia}T03:00:00.000Z`,
+                     //    obs: '',
+                     //    profiss_Id: profiss_Id,
+                     //    group_Id: group_Id,
+                     //    scale_Id: scale_Id,
+                     // });
+                     handleDistribsUpdt(
+                        // {
+                        //    id: response.data.distrib_Id,
+                        //    data: new Date(`${ano}-${mes}-${dia}T03:00:00.000Z`),
+                        //    dia: dia,
+                        //    mes: mes,
+                        //    ano: ano,
+                        //    obs: '',
+                        //    color: color,
+                        //    profiss_id: profiss_Id,
+                        //    profiss_name: profiss_name,
+                        //    scale_id: scale_Id,
+                        //    scale_name: scale_name,
+                        // },
+                        item.distrib_Id,
+                        id ? id : '',
+                     );
+                  } catch (error) {
+                     alert(`Erro ao criar distribuição: ${error}`);
+                  }
+               } else {
+                  // Código a ser executado se o usuário clicar em "Cancelar"
+                  // console.log('Usuário cancelou a troca de profissional');
+                  return;
+                  // Adicione aqui a lógica para lidar com o cancelamento, se necessário
+               }
+
+               //----- trocar o profissional  --------------------------------
+            } else {
+               try {
+                  await api.delete(`api/distrib/${item.distrib_Id}`);
+                  const response = await api.post('api/distrib', {
+                     data: `${ano}-${mes}-${dia}T03:00:00.000Z`,
+                     obs: '',
+                     profiss_Id: item.profiss_Id,
+                     group_Id: group_Id,
+                     scale_Id: scale_Id,
+                  });
+                  handleDistribsChg(
+                     {
+                        id: response.data.distrib_Id,
+                        data: new Date(`${ano}-${mes}-${dia}T03:00:00.000Z`),
+                        dia: dia,
+                        mes: mes,
+                        ano: ano,
+                        obs: '',
+                        color: item.color,
+                        profiss_id: item.profiss_Id,
+                        profiss_name: item.profiss_name,
+                        scale_id: scale_Id,
+                        scale_name: scale_name,
+                     },
+                     item.distrib_Id,
+                  );
+               } catch (error) {
+                  alert(`Erro ao criar distribuição: ${error}`);
+               }
             }
          }
       },
