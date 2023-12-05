@@ -311,7 +311,7 @@ const Dashboard: React.FC = () => {
             <TdCaptionTable>
                <p>
                   ESCALA: {groupName.current.toUpperCase()}{' '}
-                  {parseInt(mesSelected) + 1}/{anoSelected}
+                  {parseInt(mesSelected)}/{anoSelected}
                </p>
             </TdCaptionTable>
 

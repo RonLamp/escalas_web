@@ -62,6 +62,10 @@ const Aside: React.FC = () => {
                      <MdDashboard />
                      DashBoard
                   </MenuItemLink>
+                  <MenuItemLink to="/Printers">
+                     <MdDashboard />
+                     Printers
+                  </MenuItemLink>
                   <MenuItemLink to="/CadGroup">
                      <MdPeopleAlt />
                      Cad Escalas
@@ -87,9 +91,13 @@ const Aside: React.FC = () => {
                      <MdDashboard />
                      Dashboard
                   </MenuItemLink>
+                  <MenuItemLink to="/Printers">
+                     <MdDashboard />
+                     Printers
+                  </MenuItemLink>
                   <MenuItemLink to="/CadGroup">
                      <MdPeopleAlt />
-                     Cad Grupos
+                     Cad Escalas
                   </MenuItemLink>
                   <MenuItemLink to="/CadProfiss">
                      <MdPeopleAlt />
@@ -111,10 +119,14 @@ const Aside: React.FC = () => {
                   <MenuItemLink to="/">
                      <MdDashboard />
                      Dashboard
+                  </MenuItemLink>{' '}
+                  <MenuItemLink to="/Printers">
+                     <MdDashboard />
+                     Printers
                   </MenuItemLink>
                   <MenuItemLink to="/CadGroup">
                      <MdPeopleAlt />
-                     Cad Grupos
+                     Cad Escalas
                   </MenuItemLink>
                   <MenuItemLink to="/CadProfiss">
                      <MdPeopleAlt />
