@@ -52,11 +52,6 @@ const TaskScale: React.FC<ITaskScaleProps> = ({
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            // backgroundColor: isOver
-            //    ? color
-            //       ? darkenColor(color, 30)
-            //       : theme.theme.colors.primary
-            //    : color,
          }}>
          <p>{profiss_name + ' ' + obs}</p>
       </div>

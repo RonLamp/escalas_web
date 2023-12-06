@@ -8,11 +8,14 @@ import {
    TheadTable,
    TdLeftTable,
    TdTable,
+   TdRightTable,
    TrTable,
    TdFirstTableP,
    TdFirstTableC,
    TdFirstTableH,
    TdFirstTableD,
+   TFood,
+   TDFood,
 } from './styles';
 
 import ContentHeader from '../../../components/ContentHeader';
@@ -24,7 +27,16 @@ import dayjs from 'dayjs';
 import {IDadosProps} from '../../../resources/interfaces';
 import axios, {AxiosError} from 'axios';
 
+interface IEfetividadeProps {
+   nome: string;
+   crm: string;
+   totalHoras: number;
+   diasTurno: string[];
+}
+
 const Printers: React.FC = () => {
+   const [efetividade, setEfetividade] = useState<IEfetividadeProps[]>([]);
+
    const [alocacao, setAlocacao] = useState<IDadosProps[]>([]);
    const [alocacaoSelected, setAlocacaoSelected] = useState<string>('0');
 
@@ -41,7 +53,7 @@ const Printers: React.FC = () => {
       dayjs().startOf('month').format('YYYY-MM-DD'),
    );
    const endDate = useRef<string>(dayjs().endOf('month').format('YYYY-MM-DD'));
-   console.log(startDate.current + '---' + endDate.current);
+   //console.log(startDate.current + '---' + endDate.current);
    const {signOut} = useAuth();
 
    useEffect(() => {
@@ -82,19 +94,26 @@ const Printers: React.FC = () => {
       endDate.current = endday;
    };
 
-   const handleChangeGroup = async (
-      e: React.ChangeEvent<HTMLSelectElement>,
+   const handleChangeGroupAloc = async (
+      aloc: React.ChangeEvent<HTMLSelectElement> | string,
+      group: React.ChangeEvent<HTMLSelectElement> | string,
    ) => {
-      if (e.target.value === '0') {
-         setGroupSelected('0');
+      // console.log(`-------`);
+      // console.log(group);
+      // console.log(aloc);
+
+      if (aloc <= '1' || group === '0') {
          return;
       }
-   };
-
-   const handleChangeAlocacoes = (e: React.ChangeEvent<HTMLSelectElement>) => {
-      if (e.target.value === '0') {
-         setAlocacaoSelected('0');
-         return;
+      try {
+         const response = await api.post(`/api/prints/${group}/${aloc}`, {
+            dataIni: `${startDate.current}T00:00:00.000Z`,
+            dataFim: `${endDate.current}T00:00:00.000Z`,
+         });
+         console.log(response.data);
+         setEfetividade(response.data);
+      } catch (error) {
+         console.log(error);
       }
    };
 
@@ -106,7 +125,8 @@ const Printers: React.FC = () => {
                selectedid={'0'}
                onChange={e => {
                   e.preventDefault();
-                  handleChangeAlocacoes(e);
+                  setAlocacaoSelected(e.target.value);
+                  handleChangeGroupAloc(e.target.value, groupSelected);
                }}
             />
             <SelectInput
@@ -114,7 +134,8 @@ const Printers: React.FC = () => {
                selectedid={'0'}
                onChange={e => {
                   e.preventDefault();
-                  handleChangeGroup(e);
+                  setGroupSelected(e.target.value);
+                  handleChangeGroupAloc(alocacaoSelected, e.target.value);
                }}
             />
             <SelectInput
@@ -155,31 +176,47 @@ const Printers: React.FC = () => {
             </TheadFirstTable>
 
             <TheadTable>
+               {efetividade.map((item, index) => {
+                  const stringTurnos = item.diasTurno
+                     .map(dia => dia.replace(/[]/g, '')) // Remove parênteses
+                     .sort()
+                     .join(', ');
+                  return (
+                     <TrTable key={index}>
+                        <TdLeftTable>{item.nome}</TdLeftTable>
+                        <TdTable>{item.crm}</TdTable>
+                        <TdTable>{item.totalHoras}Hs</TdTable>
+                        <TdRightTable>{stringTurnos}</TdRightTable>
+                     </TrTable>
+                  );
+               })}
                <TrTable>
-                  <TdLeftTable>Dr. João das Candongas</TdLeftTable>
-                  <TdTable>99.999</TdTable>
-                  <TdTable>144Hs </TdTable>
-                  <TdTable>6(N) 7(D) 8(N)</TdTable>
-               </TrTable>{' '}
-               <TrTable>
-                  <TdLeftTable>Dr. João das Candongas</TdLeftTable>
-                  <TdTable>99.999</TdTable>
-                  <TdTable>144Hs </TdTable>
-                  <TdTable>6(N) 7(D) 8(N)</TdTable>
-               </TrTable>{' '}
-               <TrTable>
-                  <TdLeftTable>Dr. João das Candongas</TdLeftTable>
-                  <TdTable>99.999</TdTable>
-                  <TdTable>144Hs </TdTable>
-                  <TdTable>6(N) 7(D) 8(N)</TdTable>
+                  <TdLeftTable> </TdLeftTable>
+                  <TdTable> </TdTable>
+                  <TdTable> </TdTable>
+                  <TdLeftTable> . </TdLeftTable>
                </TrTable>
             </TheadTable>
-            <tfoot>
-               <p> Here</p>
-            </tfoot>
+            <TFood>
+               <TDFood colSpan={2}>Total das Horas Profissionais</TDFood>
+               <TDFood colSpan={1}>
+                  {efetividade.reduce(
+                     (total, profiss) => total + profiss.totalHoras,
+                     0,
+                  )}
+                  Hs
+               </TDFood>
+               <TDFood colSpan={1}></TDFood>
+            </TFood>
          </TTable>
       </Container>
    );
 };
 
 export default Printers;
+
+// const diasTurno = ["07(N)", "03(N)", "05(D)", "01(D)", "05(D)"];
+// const stringTurnos = diasTurno
+//   .map((dia) => dia.replace(/[()]/g, '')) // Remove parênteses
+//   .join(', ');
+// console.log(`"stringTurnos": "${stringTurnos}"`);

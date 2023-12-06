@@ -51,12 +51,19 @@ export const TdLeftTable = styled.td`
    border: 1px solid ${props => props.theme.colors.tertiary};
    width: 16%;
    padding-left: 7px;
+   text-align: left;
+`;
+export const TdRightTable = styled.td`
+   border: 1px solid ${props => props.theme.colors.tertiary};
+   width: 16%;
+   padding-left: 7px;
 `;
 export const TdTable = styled.td`
    border: 1px solid ${props => props.theme.colors.tertiary};
    width: 12%;
    height: 100%;
    background-color: ${props => props.theme.colors.secondary};
+   text-align: center;
 `;
 
 export const TrashInput = styled.div<{isSelected: boolean}>`
@@ -74,4 +81,25 @@ export const TrashInput = styled.div<{isSelected: boolean}>`
    &:hover {
       background-color: ${({theme}) => theme.theme.colors.secondary};
    }
+`;
+
+export const TFood = styled.tfoot``;
+
+interface TDFoodProps {
+   colSpan: number;
+}
+
+export const TDFood = styled.td<TDFoodProps>`
+   border: 1px solid ${props => props.theme.colors.tertiary};
+   text-align: center;
+   /* Outros estilos que você deseja aplicar */
+
+   /* Exemplo de condição para aplicar estilos específicos com base no colSpan */
+   ${props =>
+      props.colSpan === 2 &&
+      `
+     font-weight: bold;
+     background-color:none;
+     /* Outros estilos específicos para colSpan 2 */
+   `}
 `;
