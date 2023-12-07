@@ -11,34 +11,37 @@ export const TdCaptionTable = styled.caption`
 `;
 
 export const TTable = styled.table`
-   background-color: ${props => props.theme.colors.primary};
-   border: 1px solid ${props => props.theme.colors.tertiary};
+   background-color: none;
+   //border: 1px solid black;
+   color: black;
    width: 100%;
    height: 100%;
    border-collapse: collapse;
 `;
 
 export const TheadFirstTable = styled.thead`
-   border: 1px solid ${props => props.theme.colors.tertiary};
+   border: 1px solid black;
    text-align: center;
    font-size: 1.2rem;
 `;
 
 export const TdFirstTableP = styled.td`
-   border: 4px solid ${props => props.theme.colors.tertiary};
-   width: 30%;
+   border: 2px solid ${props => props.theme.colors.tertiary};
+   width: 25%;
 `;
 export const TdFirstTableC = styled.td`
-   border: 4px solid ${props => props.theme.colors.tertiary};
+   border: 2px solid ${props => props.theme.colors.tertiary};
    width: 10%;
 `;
 export const TdFirstTableH = styled.td`
-   border: 4px solid ${props => props.theme.colors.tertiary};
+   border: 2px solid ${props => props.theme.colors.tertiary};
    width: 10%;
 `;
 export const TdFirstTableD = styled.td`
-   border: 4px solid ${props => props.theme.colors.tertiary};
-   width: 50%;
+   border: 2px solid ${props => props.theme.colors.tertiary};
+   width: 55%;
+   word-wrap: break-word; /* Quebra de palavra */
+   white-space: normal; /* Ajuste automático da altura */
 `;
 
 export const TrFirstTable = styled.tr``;
@@ -62,7 +65,7 @@ export const TdTable = styled.td`
    border: 1px solid ${props => props.theme.colors.tertiary};
    width: 12%;
    height: 100%;
-   background-color: ${props => props.theme.colors.secondary};
+   background-color: none;
    text-align: center;
 `;
 
@@ -75,12 +78,7 @@ export const TrashInput = styled.div<{isSelected: boolean}>`
    cursor: pointer;
    border: 1px solid #ccc;
    padding: 10px;
-   background-color: ${({isSelected, theme}) =>
-      isSelected ? theme.theme.colors.primary : 'white'};
-
-   &:hover {
-      background-color: ${({theme}) => theme.theme.colors.secondary};
-   }
+   background-color: none;
 `;
 
 export const TFood = styled.tfoot``;

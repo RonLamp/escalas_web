@@ -27,6 +27,9 @@ import dayjs from 'dayjs';
 import {IDadosProps} from '../../../resources/interfaces';
 import axios, {AxiosError} from 'axios';
 
+import generatePDF, {Resolution, Margin, Options} from 'react-to-pdf';
+import Button from '../../../components/Button';
+
 interface IEfetividadeProps {
    nome: string;
    crm: string;
@@ -116,10 +119,58 @@ const Printers: React.FC = () => {
          console.log(error);
       }
    };
+   const targetRef = () => document.getElementById('conteudo');
+   const options: Options = {
+      filename: 'Efetividade.pdf',
+      method: `open`,
+      resolution: Resolution.HIGH,
+      page: {
+         margin: Margin.SMALL,
+         format: 'letter',
+         orientation: 'landscape',
+      },
+      canvas: {
+         mimeType: 'image/png',
+         qualityRatio: 1,
+      },
+      overrides: {
+         // see https://artskydj.github.io/jsPDF/docs/jsPDF.html for more options
+         pdf: {
+            compress: true,
+         },
+         // see https://html2canvas.hertzen.com/configuration for more options
+         canvas: {
+            useCORS: true,
+         },
+      },
+   };
+   function findMonthName(monthNumber: number) {
+      const monthObject = months.find(
+         month => month.id === monthNumber.toString(),
+      );
+      if (monthObject) {
+         return monthObject.name;
+      } else {
+         return 'Mês não encontrado';
+      }
+   }
+   function findAlocacaoName(Number: number) {
+      const efetivObject = alocacao.find(
+         efetiv => efetiv.id === Number.toString(),
+      );
+      if (efetivObject) {
+         return efetivObject.name;
+      } else {
+         return 'Efetividade não encontrada';
+      }
+   }
 
    return (
       <Container>
          <ContentHeader title="Impressões" linecolor="#ff5100ff">
+            <Button onClick={() => generatePDF(targetRef, options)}>
+               Gerar PDF
+            </Button>
             <SelectInput
                options={alocacao}
                selectedid={'0'}
@@ -158,57 +209,63 @@ const Printers: React.FC = () => {
             />
          </ContentHeader>
          {/* //--------------------- AQUI COMECA A IMPRESSAO ---------------------------- */}
-         <TTable>
-            <TdCaptionTable>
-               <p>Pronto Atendimento C.S. Feitoria</p>{' '}
-               <p>
-                  {parseInt(mesSelected)}/{anoSelected}
-               </p>
-            </TdCaptionTable>
+         <div>
+            <TTable id="conteudo">
+               <TdCaptionTable>
+                  <p>Pronto Atendimento C.S. Feitoria</p>{' '}
+                  <p>
+                     Efetividade: {findAlocacaoName(parseInt(alocacaoSelected))}
+                     /{anoSelected}
+                  </p>
+                  <p>
+                     {findMonthName(parseInt(mesSelected))}/{anoSelected}
+                  </p>{' '}
+               </TdCaptionTable>
 
-            <TheadFirstTable>
-               <TrFirstTable>
-                  <TdFirstTableP>Profissional</TdFirstTableP>
-                  <TdFirstTableC>CRM</TdFirstTableC>
-                  <TdFirstTableH>Horas Trabalhadas</TdFirstTableH>
-                  <TdFirstTableD>Datas</TdFirstTableD>
-               </TrFirstTable>
-            </TheadFirstTable>
+               <TheadFirstTable>
+                  <TrFirstTable>
+                     <TdFirstTableP>Profissional</TdFirstTableP>
+                     <TdFirstTableC>CRM</TdFirstTableC>
+                     <TdFirstTableC>Horas Trabalhadas</TdFirstTableC>
+                     <TdFirstTableD>Datas</TdFirstTableD>
+                  </TrFirstTable>
+               </TheadFirstTable>
 
-            <TheadTable>
-               {efetividade.map((item, index) => {
-                  const stringTurnos = item.diasTurno
-                     .map(dia => dia.replace(/[]/g, '')) // Remove parênteses
-                     .sort()
-                     .join(', ');
-                  return (
-                     <TrTable key={index}>
-                        <TdLeftTable>{item.nome}</TdLeftTable>
-                        <TdTable>{item.crm}</TdTable>
-                        <TdTable>{item.totalHoras}Hs</TdTable>
-                        <TdRightTable>{stringTurnos}</TdRightTable>
-                     </TrTable>
-                  );
-               })}
-               <TrTable>
-                  <TdLeftTable> </TdLeftTable>
-                  <TdTable> </TdTable>
-                  <TdTable> </TdTable>
-                  <TdLeftTable> . </TdLeftTable>
-               </TrTable>
-            </TheadTable>
-            <TFood>
-               <TDFood colSpan={2}>Total das Horas Profissionais</TDFood>
-               <TDFood colSpan={1}>
-                  {efetividade.reduce(
-                     (total, profiss) => total + profiss.totalHoras,
-                     0,
-                  )}
-                  Hs
-               </TDFood>
-               <TDFood colSpan={1}></TDFood>
-            </TFood>
-         </TTable>
+               <TheadTable>
+                  {efetividade.map((item, index) => {
+                     const stringTurnos = item.diasTurno
+                        .map(dia => dia.replace(/[]/g, '')) // Remove parênteses
+                        .sort()
+                        .join(', ');
+                     return (
+                        <TrTable key={index}>
+                           <TdLeftTable>{item.nome}</TdLeftTable>
+                           <TdTable>{item.crm}</TdTable>
+                           <TdTable>{item.totalHoras}Hs</TdTable>
+                           <TdRightTable>{stringTurnos}</TdRightTable>
+                        </TrTable>
+                     );
+                  })}
+                  <TrTable>
+                     <TdLeftTable> </TdLeftTable>
+                     <TdTable> </TdTable>
+                     <TdTable> </TdTable>
+                     <TdLeftTable> . </TdLeftTable>
+                  </TrTable>
+               </TheadTable>
+               <TFood>
+                  <TDFood colSpan={2}>Total das Horas Profissionais</TDFood>
+                  <TDFood colSpan={1}>
+                     {efetividade.reduce(
+                        (total, profiss) => total + profiss.totalHoras,
+                        0,
+                     )}
+                     Hs
+                  </TDFood>
+                  <TDFood colSpan={1}></TDFood>
+               </TFood>
+            </TTable>
+         </div>
       </Container>
    );
 };
