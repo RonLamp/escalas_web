@@ -12,7 +12,6 @@ import {
    TrTable,
    TdFirstTableP,
    TdFirstTableC,
-   TdFirstTableH,
    TdFirstTableD,
    TFood,
    TDFood,
@@ -215,7 +214,6 @@ const Printers: React.FC = () => {
                   <p>Pronto Atendimento C.S. Feitoria</p>{' '}
                   <p>
                      Efetividade: {findAlocacaoName(parseInt(alocacaoSelected))}
-                     /{anoSelected}
                   </p>
                   <p>
                      {findMonthName(parseInt(mesSelected))}/{anoSelected}

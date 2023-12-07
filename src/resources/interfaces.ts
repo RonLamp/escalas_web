@@ -4,7 +4,7 @@ export interface IDadosProps {
 }
 
 export interface IDistribProps {
-   id: string;
+   id?: string;
    data: Date;
    dia: string;
    mes: string;
@@ -15,6 +15,7 @@ export interface IDistribProps {
    profiss_name?: string;
    scale_id: string;
    scale_name: string;
+   group_id: string;
 }
 
 export interface IProfissGroupProps {

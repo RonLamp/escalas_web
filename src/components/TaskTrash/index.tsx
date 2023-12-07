@@ -2,7 +2,7 @@ import {useDrop, DropTargetMonitor} from 'react-dnd';
 import ItemTypes from '../../resources/itemTypes';
 import {useTheme} from '../../hooks/theme';
 //import {darkenColor} from '../../resources/functions';
-import {api} from '../../resources/api';
+//import {api} from '../../resources/api';
 //import {IDistribProps} from '../../resources/interfaces';
 import {TrashContainer} from './styles';
 /* import { SelectableContainer } from "./styles";
@@ -37,24 +37,13 @@ const TaskTrash: React.FC<ITaskTrashProps> = ({
          isOver: !!monitor.isOver(),
       }),
       drop: async (item: IItemProps, monitor: DropTargetMonitor) => {
-         try {
-            // console.log(
-            //    `item: ${item.profiss_Id} - ${item.profiss_name} - ${item.color} - ${item.obs}`,
-            // );
-            // console.log(`distrib_Id: ${item.distrib_Id}`);
-            if (!item.distrib_Id) {
-               alert(`Erro ao excluir distribuição: distrib_Id não informado!`);
-               return;
-            }
-            await api.delete(`api/distrib/${item.distrib_Id}`);
-            if (item.distrib_Id) {
-               handleDistribsDel(item.distrib_Id);
-            }
-            // alert(`Distribuição excluída com sucesso!`);
-         } catch (error) {
-            alert(`Erro ao excluir distribuição: ${error}`);
-         }
-         console.log();
+         //-- console.log  --------------------------
+         console.log(
+            `item: ${item.profiss_Id} - ${item.profiss_name} - ${item.color} - ${item.obs}`,
+         );
+         console.log(`distrib_Id: ${item.distrib_Id}`);
+         //------------------------------------------
+         handleDistribsDel(item.distrib_Id!);
       },
    });
    return (

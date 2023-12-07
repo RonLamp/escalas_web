@@ -36,26 +36,6 @@ import TaskCard from '../../../components/TaskCard';
 import TaskBox from '../../../components/TaskBox';
 import TaskTrash from '../../../components/TaskTrash';
 import TaskScale from '../../../components/TaskScale';
-import {set} from 'react-hook-form';
-
-/* interface IDistribProps {
-  id: string;
-  data: Date;
-  dia: string;
-  mes: string;
-  obs?: string | null;
-  color?: string;
-  profiss_id?: string;
-  profiss_name?: string;
-  scale_id: string;
-  scale_name: string;
-}
-interface IProfissGroupProps {
-  profiss_Id: string;
-  profiss_name: string;
-  color: string;
-}
-*/
 
 const Dashboard: React.FC = () => {
    const [groups, setGroups] = useState<IDadosProps[]>([]);
@@ -160,8 +140,12 @@ const Dashboard: React.FC = () => {
       e: React.ChangeEvent<HTMLSelectElement>,
    ) => {
       if (e.target.value === '0') {
-         setGroupSelected('0');
+         horarios.current = [];
          setDistribs([]);
+         setProfissSelected({profiss_Id: '', profiss_name: '', color: ''});
+         setProfiss([]);
+         setGroups([]);
+         setGroupSelected('0');
          return;
       }
       groupName.current =
@@ -204,58 +188,125 @@ const Dashboard: React.FC = () => {
       }
    };
 
-   //--- Somente Add uma TaskCard
-   const handleDistribs = (distrib: IDistribProps) => {
-      setDistribs([...distribs, distrib]);
+   //--- Funcao referente ao Task Box  -----------------------------------
+   const handleDistribsDel = async (distribID: string) => {
+      try {
+         if (!distribID) {
+            alert(`Erro ao excluir distribuição: distrib_Id não informado!`);
+            return;
+         }
+         //--- Deleta na base de dados
+         await api.delete(`api/distrib/${distribID}`);
+         //--- Deleta no array distribs
+         setDistribs(distribs.filter(item => item.id !== distribID));
+      } catch (error) {
+         alert(`Erro ao excluir distribuição: ${error}`);
+      }
    };
 
-   const handleDistribsDel = (distribID: string) => {
-      const noItemDistrib = distribs.filter(item => item.id !== distribID);
-      setDistribs(noItemDistrib);
+   //--- Funcoes referentse ao TaskCard  -----------------------------------
+   const handleDistribsAdd = async (distrib: IDistribProps) => {
+      try {
+         //--- Add na base de dados
+         const response = await api.post('api/distrib', {
+            data: `${distrib.ano}-${distrib.mes}-${distrib.dia}T03:00:00.000Z`,
+            obs: `${distrib.obs}`,
+            profiss_Id: distrib.profiss_id,
+            group_Id: distrib.group_id,
+            scale_Id: distrib.scale_id,
+         });
+         distrib.id = response.data.distrib_Id;
+         //--- Add no array distribs
+         setDistribs([...distribs, distrib]);
+      } catch (error) {
+         alert(`Erro ao criar distribuição: ${error}`);
+      }
    };
 
-   const handleDistribsChg = (distrib: IDistribProps, distribID: string) => {
-      const noItemDistrib = distribs.filter(item => item.id !== distribID);
-      setDistribs([...noItemDistrib, distrib]);
+   const handleDistribsChgPlus = async (
+      distrib_in: IDistribProps,
+      distribID_out: string,
+   ) => {
+      try {
+         //-- Deleta na base de dados
+         await api.delete(`api/distrib/${distribID_out}`);
+         //-- Deleta no array distribs
+         const newDistrib = distribs.filter(item => item.id !== distribID_out);
+         //setDistribs(distribs.filter(item => item.id !== distribID_out));
+         //-- Add na base de dados
+         const response = await api.post('api/distrib', {
+            data: `${distrib_in.ano}-${distrib_in.mes}-${distrib_in.dia}T03:00:00.000Z`,
+            obs: `${distrib_in.obs}`,
+            profiss_Id: distrib_in.profiss_id,
+            group_Id: distrib_in.group_id,
+            scale_Id: distrib_in.scale_id,
+         });
+         distrib_in.id = response.data.distrib_Id;
+         //-- Add no array distribs
+         setDistribs([...newDistrib, distrib_in]);
+      } catch (error) {
+         alert(`Erro ao criar distribuição: ${error}`);
+      }
    };
 
    const handleDistribsUpdt = async (
-      //distrib: IDistribProps,
-      distribID_In: string,
-      distribID_Out: string,
+      distrib: IDistribProps,
+      distribID_out: string,
    ) => {
-      // Delete a distribuicao de entrada e atualiza a de saida
-      const distrib_In: IDistribProps | undefined = distribs.find(
-         item => item.id === distribID_In,
-      );
-      if (!distrib_In) {
-         return;
+      try {
+         //--- Deleta na base de dados
+         await api.delete(`api/distrib/${distribID_out}`);
+         //--- Deleta no array distribs
+         const noItemDistrib = distribs.filter(
+            item => item.id !== distribID_out,
+         );
+         //--- Add na base de dados
+         const response = await api.post('api/distrib', {
+            data: `${distrib.ano}-${distrib.mes}-${distrib.dia}T03:00:00.000Z`,
+            obs: `${distrib.obs}`,
+            profiss_Id: distrib.profiss_id,
+            group_Id: distrib.group_id,
+            scale_Id: distrib.scale_id,
+         });
+         distrib.id = response.data.distrib_Id;
+         //--- Add no array distribs
+         setDistribs([...noItemDistrib, distrib]);
+      } catch (error) {
+         alert(`Erro ao criar distribuição: ${error}`);
       }
-      const distrib_Out: IDistribProps | undefined = distribs.find(
-         item => item.id === distribID_Out,
-      );
-      if (!distrib_Out) {
-         return;
-      }
-      distrib_Out.id = distrib_In.id;
-      distrib_Out.obs = distrib_In.obs;
-      distrib_Out.color = distrib_In.color;
-      distrib_Out.profiss_id = distrib_In.profiss_id;
-      distrib_Out.profiss_name = distrib_In.profiss_name;
-      // Filtra distrib para exclui a distribuição com distribID_In e distribID_Out
-      const distribF = distribs.filter(item => item.id !== distribID_In);
-      const distribG = distribF.filter(item => item.id !== distribID_Out);
-      // Atualiza a distribuição com distrib_Out modificado
-      setDistribs([...distribG, distrib_Out]);
-      // Delete distribuição de entrada
-      await api.delete(`api/distrib/${distribID_In}`);
-      // Update distribuição de saida
-      await api.patch(`api/distrib/${distribID_Out}`, {
-         obs: distrib_Out.obs,
-         profiss_id: distrib_Out.profiss_id,
-         // scale_id: distrib_Out.scale_id,
-      });
    };
+
+   const handleDistribsChg = async (
+      distrib_in: IDistribProps,
+      distribID_in: string,
+      distribID_out: string,
+   ) => {
+      try {
+         //-- Deleta na base de dados
+         await api.delete(`api/distrib/${distribID_out}`);
+         await api.delete(`api/distrib/${distribID_in}`);
+         //-- Deleta no array distribs
+         const newDistrib = distribs.filter(item => item.id !== distribID_out);
+         const newDistrib2 = newDistrib.filter(
+            item => item.id !== distribID_in,
+         );
+         //setDistribs(distribs.filter(item => item.id !== distribID_out));
+         //-- Add na base de dados
+         const response = await api.post('api/distrib', {
+            data: `${distrib_in.ano}-${distrib_in.mes}-${distrib_in.dia}T03:00:00.000Z`,
+            obs: `${distrib_in.obs}`,
+            profiss_Id: distrib_in.profiss_id,
+            group_Id: distrib_in.group_id,
+            scale_Id: distrib_in.scale_id,
+         });
+         distrib_in.id = response.data.distrib_Id;
+         //-- Add no array distribs
+         setDistribs([...newDistrib2, distrib_in]);
+      } catch (error) {
+         alert(`Erro ao criar distribuição: ${error}`);
+      }
+   };
+
    return (
       <Container>
          <ContentHeader title="Escala" linecolor="#ff5100ff">
@@ -311,7 +362,10 @@ const Dashboard: React.FC = () => {
          <TTable>
             <TdCaptionTable>
                <p>
-                  ESCALA: {groupName.current.toUpperCase()}{' '}
+                  ESCALA:{' '}
+                  {groupName.current === '0'
+                     ? null
+                     : groupName.current.toUpperCase()}{' '}
                   {parseInt(mesSelected)}/{anoSelected}
                </p>
             </TdCaptionTable>
@@ -378,12 +432,14 @@ const Dashboard: React.FC = () => {
                                           color={distrib.color}
                                           obs={distrib.obs ? distrib.obs : ''}
                                           id={distrib.id}
-                                          handleDistribs={handleDistribs}
-                                          handleDistribsDel={handleDistribsDel}
+                                          handleDistribsAdd={handleDistribsAdd}
                                           handleDistribsUpdt={
                                              handleDistribsUpdt
                                           }
-                                          handleDistribsChg={handleDistribsChg}>
+                                          handleDistribsChg={handleDistribsChg}
+                                          handleDistribsChgPlus={
+                                             handleDistribsChgPlus
+                                          }>
                                           <TaskScale
                                              profiss_Id={distrib.profiss_id}
                                              profiss_name={distrib.profiss_name}
@@ -416,15 +472,17 @@ const Dashboard: React.FC = () => {
                                              group_Id={groupSelected}
                                              scale_Id={horario.id}
                                              scale_name={horario.name}
-                                             handleDistribs={handleDistribs}
+                                             handleDistribsAdd={
+                                                handleDistribsAdd
+                                             }
                                              handleDistribsUpdt={
                                                 handleDistribsUpdt
                                              }
-                                             handleDistribsDel={
-                                                handleDistribsDel
-                                             }
                                              handleDistribsChg={
                                                 handleDistribsChg
+                                             }
+                                             handleDistribsChgPlus={
+                                                handleDistribsChgPlus
                                              }
                                           />
                                        </TdTable>
