@@ -204,6 +204,7 @@ const Dashboard: React.FC = () => {
       }
    };
 
+   //--- Somente Add uma TaskCard
    const handleDistribs = (distrib: IDistribProps) => {
       setDistribs([...distribs, distrib]);
    };
