@@ -182,6 +182,8 @@ const CadProfGroup: React.FC = () => {
                value={profisssSelected}
                onChange={handleProfissChange}
                labelledBy="Selecione os profissionais do grupo"
+               ClearIcon={false}
+               // https://www.youtube.com/watch?v=UFn4obu0grw
             />
             <div>
                <form

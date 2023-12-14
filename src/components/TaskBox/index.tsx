@@ -1,4 +1,4 @@
-import {useDrop, DropTargetMonitor} from 'react-dnd';
+import {useDrop} from 'react-dnd';
 import ItemTypes from '../../resources/itemTypes';
 import {useTheme} from '../../hooks/theme';
 import {darkenColor} from '../../resources/functions';
@@ -62,7 +62,8 @@ const TaskBox: React.FC<ITaskBoxProps> = ({
       collect: monitor => ({
          isOver: !!monitor.isOver(),
       }),
-      drop: async (item: IItemProps, monitor: DropTargetMonitor) => {
+      drop: async (item: IItemProps) => {
+         //drop: async (item: IItemProps, monitor: DropTargetMonitor) => {
          //-- console.log  --------------------------
          // console.log(`item (In): ${item.profiss_Id} - ${item.profiss_name}`);
          // console.log(`distrib_Id: ${item.distrib_Id}`);

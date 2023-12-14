@@ -42,10 +42,7 @@ const initValues: ICreateGroupFormData = {
 };
 
 const CadGroup: React.FC = () => {
-   const {
-      logged: {token},
-      signOut,
-   } = useAuth();
+   const {signOut} = useAuth();
    const location = useLocation();
    const navigate = useNavigate();
    //dados são os customers que podem ser selecionados
